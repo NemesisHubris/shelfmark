@@ -25,19 +25,6 @@ Works great alongside the following library tools, with support for automatic im
 - **Real-Time Progress** - Unified download queue with live status updates across all sources
 - **Network Flexibility** - Configurable proxy support, DNS settings, and optional Cloudflare handling for protected sources
 
-## 🖼️ Screenshots
-
-**Home screen**
-![Home screen](README_images/homescreen.png 'Home screen')
-
-**Search results**
-![Search results](README_images/search-results.png 'Search results')
-
-**Multi-source downloads**
-![Multi-source downloads](README_images/multi-source.png 'Multi-source downloads')
-
-**Download queue**
-![Download queue](README_images/downloads.png 'Download queue')
 
 ## 🚀 Quick Start
 
