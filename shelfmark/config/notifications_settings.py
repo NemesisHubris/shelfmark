@@ -294,7 +294,7 @@ def notifications_settings() -> list[SettingsField]:
                     "key": "url",
                     "label": "Notification URL",
                     "type": "text",
-                    "placeholder": "e.g. ntfys://ntfy.sh/shelfmark",
+                    "placeholder": "e.g. ntfys://ntfy.sh/litfinder",
                 },
             ],
             default=[dict(row) for row in _DEFAULT_ROUTE_ROWS],

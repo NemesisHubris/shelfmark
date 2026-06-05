@@ -132,7 +132,7 @@ export const ConfigSetupBanner = ({
               <code>
                 <span className="opacity-60">services:</span>
                 {'\n'}
-                <span className="opacity-60">{'  '}shelfmark:</span>
+                <span className="opacity-60">{'  '}litfinder:</span>
                 {'\n'}
                 {'    '}volumes:{'\n'}
                 {'      '}- <span className="text-blue-400">/path/to/config</span>:

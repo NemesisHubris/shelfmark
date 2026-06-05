@@ -982,7 +982,7 @@ def download_settings() -> list[SettingsField]:
         ActionButton(
             key="test_destination",
             label="Test Destination",
-            description="Check that Shelfmark can create and write to this destination.",
+            description="Check that LitFinder can create and write to this destination.",
             style="primary",
             callback=check_books_destination,
             show_when={
@@ -1270,7 +1270,7 @@ def download_settings() -> list[SettingsField]:
         ActionButton(
             key="test_destination_audiobook",
             label="Test Destination",
-            description="Check that Shelfmark can create and write to this audiobook destination.",
+            description="Check that LitFinder can create and write to this audiobook destination.",
             style="primary",
             callback=check_audiobook_destination,
             universal_only=True,
