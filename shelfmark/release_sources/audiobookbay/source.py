@@ -288,7 +288,7 @@ class AudiobookBaySource(ReleaseSource):
                     size_str = result.get("size")
                     size_bytes = parse_size(size_str) if size_str else None
                     language_raw = result.get("language")
-                    language_code = _map_language(language_raw) if language_raw else "en"
+                    language_code = _map_language(language_raw) if language_raw else None
                     bitrate = result.get("bitrate")
                     bitrate_kbps = _parse_bitrate_to_kbps(bitrate)
 

@@ -612,9 +612,23 @@ def _apply_deferred_field_updates() -> None:
 
 
 def _install_custom_source_requirements(custom_dir: object) -> None:
-    """Install packages from custom_sources/requirements.txt if it exists."""
+    """Install packages from custom_sources/requirements.txt if it exists.
+
+    Only runs when CUSTOM_SOURCE_AUTO_INSTALL=true is set in the environment.
+    Off by default — set it explicitly to opt in.
+    """
+    import os
     import subprocess
     import sys
+
+    if os.environ.get("CUSTOM_SOURCE_AUTO_INSTALL", "").lower() != "true":
+        req_file = custom_dir / "requirements.txt"  # type: ignore[operator]
+        if req_file.is_file():
+            logger.info(
+                "Custom source requirements.txt found but auto-install is disabled. "
+                "Set CUSTOM_SOURCE_AUTO_INSTALL=true to enable."
+            )
+        return
 
     req_file = custom_dir / "requirements.txt"  # type: ignore[operator]
     if not req_file.is_file():
