@@ -36,7 +36,7 @@ Works great alongside the following library tools, with support for automatic im
 
 1. Download the [docker-compose file](compose/docker-compose.yml):
    ```bash
-   curl -O https://raw.githubusercontent.com/calibrain/shelfmark/main/compose/docker-compose.yml
+   curl -O https://raw.githubusercontent.com/NemesisHubris/litfinder/main/compose/docker-compose.yml
    ```
 
 2. Start the service:
@@ -118,7 +118,7 @@ The full-featured image with all network capabilities included.
 #### Tor Routing
 Optional Tor support for network privacy:
 ```bash
-curl -O https://raw.githubusercontent.com/calibrain/shelfmark/main/compose/docker-compose.tor.yml
+curl -O https://raw.githubusercontent.com/NemesisHubris/litfinder/main/compose/docker-compose.tor.yml
 docker compose -f docker-compose.tor.yml up -d
 ```
 
@@ -136,7 +136,7 @@ A lighter image without the built-in browser automation. Ideal for:
 - **Audiobooks** - Using Shelfmark primarily for audiobooks
 
 ```bash
-curl -O https://raw.githubusercontent.com/calibrain/shelfmark/main/compose/docker-compose.lite.yml
+curl -O https://raw.githubusercontent.com/NemesisHubris/litfinder/main/compose/docker-compose.lite.yml
 docker compose -f docker-compose.lite.yml up -d
 ```
 
@@ -248,4 +248,4 @@ Use of this tool is entirely at your own risk.
 
 ## Support
 
-For issues or questions, please [file an issue](https://github.com/calibrain/shelfmark/issues) on GitHub.
+For issues or questions, please [file an issue](https://github.com/NemesisHubris/litfinder/issues) on GitHub.

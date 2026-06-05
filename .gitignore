@@ -239,7 +239,7 @@ node_modules/
 
 /data/
 
-# Test environment — local data and secrets, never commit
+# Test environment — local data, secrets, and compose overrides, never commit
 dev-config/
 dev-downloads/
 dev-qbittorrent/
@@ -249,4 +249,5 @@ dev-sabnzbd/
 dev-nzbget/
 secrets/
 dev-rtorrent/
+docker-compose.test-env.yml
 /data/
