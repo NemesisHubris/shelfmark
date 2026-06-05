@@ -238,3 +238,13 @@ frontend-dist/
 node_modules/
 
 /data/
+
+# Test environment — local data and secrets, never commit
+dev-config/
+dev-downloads/
+dev-qbittorrent/
+dev-transmission/
+dev-deluge/
+dev-sabnzbd/
+dev-nzbget/
+secrets/wireguard_private_key_dev
