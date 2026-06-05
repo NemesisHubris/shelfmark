@@ -5,7 +5,7 @@
 > [!IMPORTANT]
 > This is an **actively maintained community fork** of [calibrain/shelfmark](https://github.com/calibrain/shelfmark). New features, bug fixes, and improvements are added here. The upstream project is no longer under active maintenance.
 
-Shelfmark is a self-hosted web interface for searching and requesting books and audiobooks across multiple sources. Bring your own sources, metadata providers, and download clients to build a single hub for your digital library. Supports multiple users with a built-in request system, so you can share your instance with others and let them browse and request books on their own.
+LitFinder is a self-hosted web interface for searching and requesting books and audiobooks across multiple sources. Bring your own sources, metadata providers, and download clients to build a single hub for your digital library. Supports multiple users with a built-in request system, so you can share your instance with others and let them browse and request books on their own.
 
 Works great alongside the following library tools, with support for automatic imports:
 - [Calibre](https://calibre-ebook.com/)
@@ -133,7 +133,7 @@ A lighter image without the built-in browser automation. Ideal for:
 
 - **External services** - Already running FlareSolverr or similar for other applications
 - **Alternative sources** - Using Prowlarr, IRC, or other configured sources
-- **Audiobooks** - Using Shelfmark primarily for audiobooks
+- **Audiobooks** - Using LitFinder primarily for audiobooks
 
 ```bash
 curl -O https://raw.githubusercontent.com/NemesisHubris/litfinder/main/compose/docker-compose.lite.yml
@@ -150,7 +150,7 @@ Authentication is optional but recommended for shared or exposed instances. Mult
 
 **2. Proxy (Forward) Authentication**
 
-Proxy auth trusts headers set by your reverse proxy (e.g. `X-Auth-User`). Ensure Shelfmark is not directly exposed, and configure your proxy to strip/overwrite these headers for all inbound requests.
+Proxy auth trusts headers set by your reverse proxy (e.g. `X-Auth-User`). Ensure LitFinder is not directly exposed, and configure your proxy to strip/overwrite these headers for all inbound requests.
 
 **3. OIDC (OpenID Connect)**
 
@@ -167,24 +167,24 @@ volumes:
 
 ### Multi-User Support
 
-With any authentication method enabled, Shelfmark supports multi-user management with admin/user roles. Users can have per-user settings for download destinations, email recipients, and notification preferences. Non-admin users only see their own downloads and can submit book requests for admin review. Admins can configure request policies per source to control whether users can download directly, must submit a request, or are blocked entirely.
+With any authentication method enabled, LitFinder supports multi-user management with admin/user roles. Users can have per-user settings for download destinations, email recipients, and notification preferences. Non-admin users only see their own downloads and can submit book requests for admin review. Admins can configure request policies per source to control whether users can download directly, must submit a request, or are blocked entirely.
 
 ## Project Scope
 
-Shelfmark is a manual search and download tool, the entry point to your book library, not a library manager. It finds books, downloads them, and sends them to a configured destination. That's the full scope.
+LitFinder is a manual search and download tool, the entry point to your book library, not a library manager. It finds books, downloads them, and sends them to a configured destination. That's the full scope.
 
-Shelfmark intentionally does not:
+LitFinder intentionally does not:
 
 - **Track or manage your library** - it doesn't know or care what you already own
 - **Integrate with library software** - what happens after delivery is up to your library tool
 - **Monitor authors, series, or new releases** - there is no background automation
-- **Queue future downloads** - if a book isn't available now, Shelfmark won't watch for it
+- **Queue future downloads** - if a book isn't available now, LitFinder won't watch for it
 
 These are non-goals, not missing features.
 
 ## Contributing
 
-Shelfmark's core feature set is complete. Development focuses on stability, bug fixes, quality-of-life improvements, and refining the search experience. Contributions in these areas are welcome, please file issues or submit pull requests on GitHub.
+LitFinder's core feature set is complete. Development focuses on stability, bug fixes, quality-of-life improvements, and refining the search experience. Contributions in these areas are welcome, please file issues or submit pull requests on GitHub.
 
 Feature requests that fall outside the project scope (library integration, automation, collection management) will be closed. If you're unsure whether something fits, open a discussion first.
 
@@ -237,7 +237,7 @@ AGPL-3.0 — see [LICENSE](LICENSE) for details. Original code by CaliBrain is M
 
 ## ⚠️ Disclaimer
 
-Shelfmark is a search interface that displays results from external metadata providers and sources. It does not host, store, or distribute any content. The developers are not responsible for how the tool is used or what is accessed through it.
+LitFinder is a search interface that displays results from external metadata providers and sources. It does not host, store, or distribute any content. The developers are not responsible for how the tool is used or what is accessed through it.
 
 Users are solely responsible for:
 - Ensuring they have the legal right to download any material they access
