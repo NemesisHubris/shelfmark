@@ -1,6 +1,6 @@
-# 📚 Shelfmark: Book Search & Request Tool
+# 📚 LitFinder: Book Search & Request Tool
 
-<img src="src/frontend/public/logo.png" alt="Shelfmark" width="200">
+<img src="src/frontend/public/logo.png" alt="LitFinder" width="200">
 
 > [!IMPORTANT]
 > This is an **actively maintained community fork** of [calibrain/shelfmark](https://github.com/calibrain/shelfmark). New features, bug fixes, and improvements are added here. The upstream project is no longer under active maintenance.
