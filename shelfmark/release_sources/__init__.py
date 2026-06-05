@@ -598,6 +598,11 @@ def _apply_deferred_field_updates() -> None:
                         logger.debug(
                             "Applied %d deferred settings fields for plugin %s", len(clean), stem
                         )
+                    else:
+                        logger.warning(
+                            "Deferred settings fields for plugin %s lost — tab %s not found in registry",
+                            stem, tab_name,
+                        )
         except Exception:
             logger.exception("Error applying deferred settings fields for plugin: %s", stem)
 
@@ -757,6 +762,13 @@ def _load_custom_sources() -> None:
                 sys.modules.pop(module_name, None)
                 continue
 
+            if not new_sources:
+                logger.warning(
+                    "Plugin %s loaded but registered no new sources — skipping settings tab",
+                    plugin_file.name,
+                )
+                continue
+
             _register_custom_source_settings(
                 safe_stem, module, new_sources, order=59 + loaded_count
             )
@@ -855,7 +867,7 @@ def list_available_sources() -> list[dict]:
             result.append(
                 {
                     "name": name,
-                    "display_name": src_class.display_name,
+                    "display_name": getattr(src_class, "display_name", name),
                     "enabled": False,
                     "supported_content_types": getattr(
                         src_class, "supported_content_types", ["ebook", "audiobook"]

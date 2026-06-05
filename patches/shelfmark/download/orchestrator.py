@@ -113,7 +113,7 @@ def _parse_release_search_mode(value: object) -> SearchMode:
 def _source_unavailable_message(source_name: str) -> str | None:
     try:
         source = get_source(source_name)
-    except SourceUnavailableError as exc:
+    except (SourceUnavailableError, ValueError) as exc:
         return str(exc)
     if source.is_available():
         return None
