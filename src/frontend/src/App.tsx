@@ -1489,7 +1489,7 @@ function App() {
   const handleCancel = async (id: string) => {
     try {
       await cancelDownload(id);
-      await fetchStatus();
+      await Promise.all([fetchStatus(), refreshActivitySnapshot()]);
     } catch (error) {
       console.error('Cancel failed:', error);
       showToast('Failed to cancel/clear download', 'error');
