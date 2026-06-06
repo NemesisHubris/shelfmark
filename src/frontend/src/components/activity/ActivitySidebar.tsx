@@ -179,6 +179,7 @@ const mergeRequestWithDownload = (
     metaLine: downloadItem.metaLine,
     timestamp: Math.max(downloadItem.timestamp, requestItem.timestamp),
     username: requestItem.username || downloadItem.username,
+    displayName: requestItem.displayName || downloadItem.displayName,
     adminNote: requestItem.adminNote,
     requestId: requestItem.requestId,
     requestLevel: requestItem.requestLevel,
@@ -205,6 +206,14 @@ const getItemUsername = (item: ActivityItem): string | null => {
   }
   const normalized = candidate.trim();
   return normalized || null;
+};
+
+const getItemDisplayLabel = (item: ActivityItem): string | null => {
+  const displayName = item.displayName || item.requestRecord?.display_name || undefined;
+  if (displayName?.trim()) {
+    return displayName.trim();
+  }
+  return getItemUsername(item);
 };
 
 const parsePinned = (value: string | null): boolean => {
@@ -430,7 +439,7 @@ export const ActivitySidebar = ({
   }
 
   const availableUsers = useMemo(() => {
-    const userMap = new Map<string, string>();
+    const userMap = new Map<string, { username: string; label: string }>();
     baseVisibleItems.forEach((item) => {
       const username = getItemUsername(item);
       if (!username) {
@@ -438,15 +447,21 @@ export const ActivitySidebar = ({
       }
       const lookupKey = username.toLowerCase();
       if (!userMap.has(lookupKey)) {
-        userMap.set(lookupKey, username);
+        userMap.set(lookupKey, {
+          username,
+          label: getItemDisplayLabel(item) ?? username,
+        });
       }
     });
 
-    return Array.from(userMap.values()).toSorted((left, right) => left.localeCompare(right));
+    return Array.from(userMap.values()).toSorted((left, right) =>
+      left.label.localeCompare(right.label),
+    );
   }, [baseVisibleItems]);
 
   const effectiveSelectedUser =
-    selectedUser === ALL_USERS_FILTER || availableUsers.includes(selectedUser)
+    selectedUser === ALL_USERS_FILTER ||
+    availableUsers.some((u) => u.username === selectedUser)
       ? selectedUser
       : ALL_USERS_FILTER;
   if (effectiveSelectedUser !== selectedUser) {
@@ -634,12 +649,18 @@ export const ActivitySidebar = ({
                     title={
                       effectiveSelectedUser === ALL_USERS_FILTER
                         ? 'Filter by user'
-                        : `Filtered: ${effectiveSelectedUser}`
+                        : `Filtered: ${
+                            availableUsers.find((u) => u.username === effectiveSelectedUser)
+                              ?.label ?? effectiveSelectedUser
+                          }`
                     }
                     aria-label={
                       effectiveSelectedUser === ALL_USERS_FILTER
                         ? 'Filter by user'
-                        : `Filtered by user ${effectiveSelectedUser}`
+                        : `Filtered by user ${
+                            availableUsers.find((u) => u.username === effectiveSelectedUser)
+                              ?.label ?? effectiveSelectedUser
+                          }`
                     }
                     aria-expanded={isDropdownOpen}
                   >
@@ -662,9 +683,11 @@ export const ActivitySidebar = ({
               >
                 {({ close }) => (
                   <div role="listbox">
-                    {[ALL_USERS_FILTER, ...availableUsers].map((value) => {
+                    {[
+                      { username: ALL_USERS_FILTER, label: 'All users' },
+                      ...availableUsers,
+                    ].map(({ username: value, label }) => {
                       const isSelected = effectiveSelectedUser === value;
-                      const label = value === ALL_USERS_FILTER ? 'All users' : value;
                       return (
                         <button
                           type="button"
