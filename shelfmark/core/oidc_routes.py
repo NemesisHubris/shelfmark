@@ -22,6 +22,7 @@ from shelfmark.core.oidc_auth import (
     parse_group_claims,
     provision_oidc_user,
 )
+from shelfmark.core.request_helpers import coerce_bool
 from shelfmark.download.network import get_ssl_verify
 
 if TYPE_CHECKING:
@@ -207,6 +208,7 @@ def _get_oidc_client() -> tuple[Any, dict[str, Any]]:
         "OIDC_ADMIN_GROUP": admin_group,
         "OIDC_AUTO_PROVISION": app_config.get("OIDC_AUTO_PROVISION", True),
         "OIDC_USE_ADMIN_GROUP": use_admin_group,
+        "OIDC_ALLOW_EMAIL_LINK": app_config.get("OIDC_ALLOW_EMAIL_LINK", False),
     }
 
 
@@ -224,7 +226,13 @@ def register_oidc_routes(app: Flask, user_db: UserDB) -> None:
                 session[_RETURN_TO_SESSION_KEY] = return_to
             else:
                 session.pop(_RETURN_TO_SESSION_KEY, None)
-            redirect_uri = request.url_root.rstrip("/") + "/api/auth/oidc/callback"
+            # Prefer an explicitly configured base URL to avoid relying on the
+            # Host header, which can be spoofed by a network attacker in some
+            # reverse-proxy deployments. Set OIDC_REDIRECT_BASE_URL in config
+            # to pin the callback origin.
+            configured_base = str(app_config.get("OIDC_REDIRECT_BASE_URL") or "").rstrip("/")
+            redirect_base = configured_base or request.url_root.rstrip("/")
+            redirect_uri = redirect_base + "/api/auth/oidc/callback"
             return client.authorize_redirect(redirect_uri)
         except ValueError:
             return jsonify({"error": "OIDC not configured"}), 500
@@ -305,7 +313,19 @@ def register_oidc_routes(app: Flask, user_db: UserDB) -> None:
             if admin_group and use_admin_group:
                 is_admin = admin_group in groups
 
-            allow_email_link = bool(user_info.get("email")) and _is_email_verified(claims)
+            # allow_email_link lets a verified OIDC email claim link to an existing
+            # local account with the same address. This is useful when an admin
+            # pre-provisions accounts, but poses a risk if a public IdP is used
+            # (attacker registers the same email). Set OIDC_ALLOW_EMAIL_LINK=true
+            # in config to opt in.
+            email_link_enabled = coerce_bool(
+                config.get("OIDC_ALLOW_EMAIL_LINK", False), default=False
+            )
+            allow_email_link = (
+                email_link_enabled
+                and bool(user_info.get("email"))
+                and _is_email_verified(claims)
+            )
             user = provision_oidc_user(
                 user_db,
                 user_info,

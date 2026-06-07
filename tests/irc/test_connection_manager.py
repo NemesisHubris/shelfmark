@@ -31,7 +31,7 @@ def test_cleanup_idle_connections_tolerates_disconnect_error(manager):
 
 def test_get_connection_clears_connecting_flag_on_failure(manager, monkeypatch):
     class FailingIRCClient:
-        def __init__(self, nick, server, port, *, use_tls):
+        def __init__(self, nick, server, port, *, use_tls, verify_ssl=False):
             self.nick = nick
             self.server = server
             self.port = port
@@ -62,8 +62,13 @@ def test_close_connection_tolerates_disconnect_error(manager):
     client.server = "irc.example.com"
     client.port = 6697
     client.nick = "reader"
+    client.use_tls = True
+    client.verify_ssl = False
     client.disconnect.side_effect = RuntimeError("disconnect failed")
-    key = manager._connection_key(client.server, client.port, client.nick)
+    key = manager._connection_key(
+        client.server, client.port, client.nick,
+        use_tls=client.use_tls, verify_ssl=client.verify_ssl,
+    )
 
     manager._connections[key] = client
     manager._last_used[key] = 1.0

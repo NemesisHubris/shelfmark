@@ -437,7 +437,7 @@ class TestOIDCCallbackEndpoint:
     def test_callback_links_pre_created_user_by_email_when_no_provision(
         self, mock_get_client, client, user_db
     ):
-        config = {**MOCK_OIDC_CONFIG, "OIDC_AUTO_PROVISION": False}
+        config = {**MOCK_OIDC_CONFIG, "OIDC_AUTO_PROVISION": False, "OIDC_ALLOW_EMAIL_LINK": True}
         user_db.create_user(username="alice", email="alice@example.com", password_hash="hash")
 
         fake_client = Mock()
@@ -541,7 +541,7 @@ class TestOIDCCallbackEndpoint:
 
     @patch("shelfmark.core.oidc_routes._get_oidc_client")
     def test_callback_links_to_existing_user_by_email(self, mock_get_client, client, user_db):
-        """OIDC login with matching email should link to existing local user."""
+        """OIDC login with matching email should link to existing local user when opted in."""
         user_db.create_user(username="localuser", email="shared@example.com", password_hash="hash")
 
         fake_client = Mock()
@@ -554,7 +554,9 @@ class TestOIDCCallbackEndpoint:
                 "groups": [],
             }
         }
-        mock_get_client.return_value = (fake_client, MOCK_OIDC_CONFIG)
+        mock_get_client.return_value = (
+            fake_client, {**MOCK_OIDC_CONFIG, "OIDC_ALLOW_EMAIL_LINK": True}
+        )
 
         resp = client.get("/api/auth/oidc/callback?code=abc123&state=test-state")
         assert resp.status_code == 302

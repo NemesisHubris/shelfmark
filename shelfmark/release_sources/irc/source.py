@@ -202,6 +202,7 @@ class IRCReleaseSource(ReleaseSource):
         server = _config_text("IRC_SERVER")
         port = _config_port("IRC_PORT", 6697)
         use_tls = _config_bool("IRC_USE_TLS", True)
+        verify_ssl = _config_bool("IRC_TLS_VERIFY", False)
         channel = _config_text("IRC_CHANNEL")
         nick = _config_text("IRC_NICK")
         search_bot = _config_text("IRC_SEARCH_BOT")
@@ -215,6 +216,7 @@ class IRCReleaseSource(ReleaseSource):
                 port=port,
                 nick=nick,
                 use_tls=use_tls,
+                verify_ssl=verify_ssl,
                 channel=channel,
             )
 

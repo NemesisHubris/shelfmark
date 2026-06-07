@@ -397,7 +397,7 @@ def _resolve_policy_mode_for_current_user(*, source: Any, content_type: Any) -> 
     auth_mode = get_auth_mode()
     if auth_mode == "none":
         return None
-    if session.get("is_admin", True):
+    if session.get("is_admin", False):
         return None
     if user_db is None:
         return None
@@ -918,6 +918,8 @@ if _is_debug_enabled():
 
         The file is written to `/tmp/shelfmark-debug.zip` before being returned.
         """
+        if get_auth_mode() != "none" and not session.get("is_admin", False):
+            return jsonify({"error": "Admin required"}), 403
         try:
             logger.info("Debug endpoint called, stopping GUI and generating debug info...")
             _stop_gui()
@@ -929,15 +931,21 @@ if _is_debug_enabled():
                 _raise_runtime_error(f"Debug script failed: {result.stderr}")
             logger.info("Debug script executed: %s", result.stdout)
             debug_file_path = result.stdout.strip().split("\n")[-1]
-            if not Path(debug_file_path).exists():
+            # Require the output path to be within /tmp to prevent the script's
+            # stdout from being used to serve arbitrary filesystem paths.
+            debug_resolved = Path(debug_file_path).resolve()
+            if not str(debug_resolved).startswith("/tmp/"):
+                logger.error("Debug script returned unexpected file path: %s", debug_file_path)
+                return jsonify({"error": "Failed to generate debug information"}), 500
+            if not debug_resolved.exists():
                 logger.error("Debug zip file not found at: %s", debug_file_path)
                 return jsonify({"error": "Failed to generate debug information"}), 500
 
             logger.info("Sending debug file: %s", debug_file_path)
             return send_file(
-                debug_file_path,
+                str(debug_resolved),
                 mimetype="application/zip",
-                download_name=Path(debug_file_path).name,
+                download_name=debug_resolved.name,
                 as_attachment=True,
             )
         except subprocess.CalledProcessError as e:
@@ -951,6 +959,8 @@ if _is_debug_enabled():
     @login_required
     def restart() -> Response | tuple[Response, int]:
         """Restart the application."""
+        if get_auth_mode() != "none" and not session.get("is_admin", False):
+            return jsonify({"error": "Admin required"}), 403
         os._exit(0)
 
 
@@ -1625,9 +1635,26 @@ def api_local_download() -> Response | tuple[Response, int]:
                                 history_row.get("download_path")
                             )
                             if download_path:
+                                _safe_exts = frozenset({
+                                    # Default supported ebook formats
+                                    ".epub", ".pdf", ".mobi", ".azw3", ".azw", ".fb2", ".djvu",
+                                    ".cbr", ".cbz",
+                                    # Audiobook / media formats
+                                    ".mp3", ".m4b", ".m4a", ".ogg", ".flac", ".aac",
+                                    ".wav", ".opus",
+                                    # Archive (books are sometimes delivered zipped)
+                                    ".zip",
+                                })
+                                resolved_dl = Path(download_path).resolve()
+                                if resolved_dl.suffix.lower() not in _safe_exts:
+                                    logger.warning(
+                                        "Refusing to serve file with unexpected extension: %s",
+                                        download_path,
+                                    )
+                                    return jsonify({"error": "File not found"}), 404
                                 return send_file(
-                                    download_path,
-                                    download_name=Path(download_path).name,
+                                    str(resolved_dl),
+                                    download_name=resolved_dl.name,
                                     as_attachment=True,
                                 )
 

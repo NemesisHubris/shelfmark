@@ -76,6 +76,7 @@ class IRCClient:
         port: int,
         *,
         use_tls: bool = True,
+        verify_ssl: bool = False,
         version: str = "Shelfmark 1.0",
     ) -> None:
         """Initialize the IRC client with connection settings and defaults."""
@@ -92,6 +93,7 @@ class IRCClient:
         self.server = server
         self.port = port
         self.use_tls = use_tls
+        self.verify_ssl = verify_ssl
         self.version = version
 
         self._socket: socket.socket | None = None
@@ -121,9 +123,11 @@ class IRCClient:
             # Wrap with TLS if needed
             if self.use_tls:
                 context = ssl.create_default_context()
-                # Skip verification for self-signed certs common on IRC servers
-                context.check_hostname = False
-                context.verify_mode = ssl.CERT_NONE
+                if not self.verify_ssl:
+                    # Many IRC servers use self-signed certs; verification is opt-in
+                    # via IRC_TLS_VERIFY config.
+                    context.check_hostname = False
+                    context.verify_mode = ssl.CERT_NONE
                 sock = context.wrap_socket(sock, server_hostname=self.server)
 
             sock.connect((self.server, self.port))
@@ -293,7 +297,11 @@ class IRCClient:
             msg = "Not connected"
             raise IRCError(msg)
 
-        data = f"{message}\r\n".encode()
+        # Strip embedded CRLF to prevent protocol injection — IRC messages are
+        # one-per-line; a user-supplied message with \r\n would split into two
+        # commands on the wire.
+        safe_message = message.replace("\r", "").replace("\n", "")
+        data = f"{safe_message}\r\n".encode()
         self._socket.sendall(data)
 
     def _recv_lines(self) -> Iterator[str]:

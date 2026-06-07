@@ -56,9 +56,17 @@ class IRCConnectionManager:
         # Start background cleanup thread
         self._start_cleanup_thread()
 
-    def _connection_key(self, server: str, port: int, nick: str) -> str:
+    def _connection_key(
+        self,
+        server: str,
+        port: int,
+        nick: str,
+        *,
+        use_tls: bool = True,
+        verify_ssl: bool = False,
+    ) -> str:
         """Generate a unique key for a connection."""
-        return f"{server}:{port}:{nick}"
+        return f"{server}:{port}:{nick}:tls={use_tls}:verify={verify_ssl}"
 
     def _start_cleanup_thread(self) -> None:
         """Start background thread to clean up idle connections."""
@@ -100,6 +108,7 @@ class IRCConnectionManager:
         nick: str,
         *,
         use_tls: bool,
+        verify_ssl: bool = False,
         channel: str,
     ) -> IRCClient:
         """Get or create an IRC connection.
@@ -112,13 +121,15 @@ class IRCConnectionManager:
             port: IRC server port
             nick: IRC nickname
             use_tls: Whether to use TLS
+            verify_ssl: Whether to verify TLS certificates (opt-in; IRC servers
+                commonly use self-signed certs)
             channel: Channel to join (without # prefix)
 
         Returns:
             Connected IRCClient instance that has joined the channel
 
         """
-        key = self._connection_key(server, port, nick)
+        key = self._connection_key(server, port, nick, use_tls=use_tls, verify_ssl=verify_ssl)
         need_new_connection = False
         dead_client = None
 
@@ -170,13 +181,14 @@ class IRCConnectionManager:
                 port=port,
                 nick=nick,
                 use_tls=use_tls,
+                verify_ssl=verify_ssl,
                 channel=channel,
             )
 
         # Create new connection OUTSIDE the lock to avoid blocking other threads
         try:
             logger.info("Creating new IRC connection to %s:%s", server, port)
-            client = IRCClient(nick, server, port, use_tls=use_tls)
+            client = IRCClient(nick, server, port, use_tls=use_tls, verify_ssl=verify_ssl)
             client.connect()
             client.join_channel(channel)
 
@@ -201,7 +213,10 @@ class IRCConnectionManager:
         This updates the last-used timestamp to prevent premature cleanup.
         The connection stays open for potential reuse.
         """
-        key = self._connection_key(client.server, client.port, client.nick)
+        key = self._connection_key(
+            client.server, client.port, client.nick,
+            use_tls=client.use_tls, verify_ssl=client.verify_ssl,
+        )
 
         with self._conn_lock:
             if key in self._connections:
@@ -214,7 +229,10 @@ class IRCConnectionManager:
         Use this when you want to force-close a connection rather than
         releasing it for reuse.
         """
-        key = self._connection_key(client.server, client.port, client.nick)
+        key = self._connection_key(
+            client.server, client.port, client.nick,
+            use_tls=client.use_tls, verify_ssl=client.verify_ssl,
+        )
 
         with self._conn_lock:
             self._connections.pop(key, None)
