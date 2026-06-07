@@ -238,6 +238,7 @@ frontend-dist/
 node_modules/
 
 /data/
+!/data/book-languages.json
 
 # Test environment — local data, secrets, and compose overrides, never commit
 dev-config/
@@ -251,3 +252,4 @@ secrets/
 dev-rtorrent/
 docker-compose.test-env.yml
 /data/
+!/data/book-languages.json
